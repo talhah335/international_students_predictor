@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Student Predictor</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+    input, button {
+      padding: 10px;
+      margin: 10px 0;
+      width: 100%;
+    }
+    img {
+      margin-top: 20px;
+      max-width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <h1>Predict International Students</h1>
+  <form id="predict-form">
+    <input type="text" id="country" placeholder="Country name" required>
+    <input type="number" id="year" placeholder="Year (e.g., 2027)" required>
+    <button type="submit">Predict</button>
+  </form>
+
+  <div id="result"></div>
+  <img id="plot" src="" alt="Prediction Plot" style="display:none;">
+
+  <script>
+    document.getElementById('predict-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const country = document.getElementById('country').value;
+      const year = document.getElementById('year').value;
+
+      const res = await fetch('/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ country, year })
+      });
+
+      const resultDiv = document.getElementById('result');
+      const plotImg = document.getElementById('plot');
+
+      if (res.ok) {
+        const data = await res.json();
+        resultDiv.innerHTML = `<h3>Predicted Students: ${data.prediction}</h3>`;
+        plotImg.src = data.image_url + '?t=' + new Date().getTime(); // cache buster
+        plotImg.style.display = 'block';
+      } else {
+        const error = await res.json();
+        resultDiv.innerHTML = `<p style="color:red">${error.error}</p>`;
+        plotImg.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>
+
