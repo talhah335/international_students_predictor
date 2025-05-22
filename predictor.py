@@ -40,11 +40,11 @@ df_yearly.columns = ['Country'] + [int(col.split()[0]) for col in yearly_total_c
 for col in df_yearly.columns[1:]:
     df_yearly[col] = pd.to_numeric(df_yearly[col].astype(str).str.replace(',', ''), errors='coerce')
 
+
 def predict_students_yearly(country_name, target_year):
     row = df_yearly[df_yearly['Country'].str.lower() == country_name.lower()]
     if row.empty:
-        print(f"No data found for country: {country_name}")
-        return
+        return -1
 
     years = np.array(df_yearly.columns[1:], dtype=float)
     values = row.iloc[0, 1:].values.astype(float)
@@ -76,11 +76,21 @@ def predict_students_yearly(country_name, target_year):
     plt.grid(True)
     plt.show()
 
-    print(f"Predicted number of international students from {country_name} in {target_year}: {int(prediction[0][0])}")
+    return int(prediction[0][0])
+
 
 country = input("Enter country: ")
-year = int(input("Enter year: "))
-predict_students_yearly(country, year)
+year = int(input("Enter year (>2027): "))
+n = predict_students_yearly(country, year)
+
+if n == -1:
+    print(f"No data found for country: {country}")
+else:
+    print(f"Predicted number of international students from {country} in {year}: ", n)
+
+
+
+
 
 
 
